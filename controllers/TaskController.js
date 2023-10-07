@@ -37,7 +37,7 @@ class TaskController {
     }
 
     // updating a task
-    async updateTask(id) {
+    async updateTask(id,new_task) {
         return new Promise((resolve, reject) => {
             // get the task.
             let task = tasks.find((task) => task.id === parseInt(id));
@@ -46,7 +46,7 @@ class TaskController {
                 reject(`No task with id ${id} found`);
             }
             //else, update it by setting completed to true
-            task["completed"] = true;
+            tasks.replace(task, new_task );
             // return the updated task
             resolve(task);
         });
@@ -61,14 +61,8 @@ class TaskController {
             if (!task) { 
                 reject(`No task with id ${id} found`);
             }
-            // else, return a success message
-            
-            tasks.forEach((task) => {
-                if (task.id === id) {
-                    tasks.remove(task);
-                }
-            })
-
+            // else, update data and return a success message
+            tasks = tasks.filter((task) => task.id != parseInt(id));
             resolve(`task deleted successfully`);
         });
     }

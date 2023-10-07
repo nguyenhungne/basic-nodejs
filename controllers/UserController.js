@@ -37,7 +37,7 @@ class UserController {
     }
 
     // updating a user
-    async updateUser(id) {
+    async updateUser(id,new_user) {
         return new Promise((resolve, reject) => {
             // get the user.
             let user = users.find((user) => user.id === parseInt(id));
@@ -46,7 +46,7 @@ class UserController {
                 reject(`No user with id ${id} found`);
             }
             //else, update it by setting completed to true
-            // UPDATING USER PASSWORD HMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+            users.replace(user, new_user );
             // return the updated user
             resolve(user);
         });
@@ -63,11 +63,7 @@ class UserController {
             }
             // else, return a success message
             
-            users.forEach((user) => {
-                if (user.id === id) {
-                    users.remove(user);
-                }
-            })
+            users = users.filter((user) => user.id != parseInt(id));
 
             resolve(`user deleted successfully`);
         });

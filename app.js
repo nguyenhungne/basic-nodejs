@@ -64,8 +64,10 @@ else if (req.url.match(/\/tasks\/([0-9]+)/) && req.method === "PATCH") {
     try {
         // get the id from the url
         const id = req.url.split("/")[2];
+        //get new task
+        let new_task = await getReqData(req);
         // update task
-        let updated_task = await new TaskController().updateTask(id);
+        let updated_task = await new TaskController().updateTask(id,new_task);
         // set the status code and content-type
         res.writeHead(200, { "Content-Type": "application/json" });
         // send the message
@@ -78,7 +80,7 @@ else if (req.url.match(/\/tasks\/([0-9]+)/) && req.method === "PATCH") {
     }
 }
 
-// /api/tasks/ : POST
+// /tasks/ : POST
 else if (req.url === "/tasks" && req.method === "POST") {
     // get the data sent along
     let task_data = await getReqData(req);
@@ -146,8 +148,10 @@ else if (req.url.match(/\/projects\/([0-9]+)/) && req.method === "PATCH") {
     try {
         // get the id from the url
         const id = req.url.split("/")[2];
+        // get new project
+        let new_project = await getReqData(req);
         // update project
-        let updated_project = await new ProjectController().updateProject(id);
+        let updated_project = await new ProjectController().updateProject(id,new_project);
         // set the status code and content-type
         res.writeHead(200, { "Content-Type": "application/json" });
         // send the message
@@ -184,7 +188,7 @@ else if (req.url === "/users" && req.method === "GET") {
     // send the data
     res.end(JSON.stringify(users));
 }
-    //[GET] /projects/:id
+    //[GET] /users/:id
 else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "GET") {
     try {
         // get id from url
@@ -228,8 +232,10 @@ else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "PATCH") {
     try {
         // get the id from the url
         const id = req.url.split("/")[2];
+        // get new user
+        let new_user = await getReqData(req);
         // update project
-        let updated_user = await new UserController().updateUser(id);
+        let updated_user = await new UserController().updateUser(id,new_user);
         // set the status code and content-type
         res.writeHead(200, { "Content-Type": "application/json" });
         // send the message
