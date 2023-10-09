@@ -37,8 +37,9 @@ class TaskController {
     }
 
     // updating a task
-    async updateTask(id,new_task) {
+    async updateTask(id,newTask) {
         return new Promise((resolve, reject) => {
+            newTask = JSON.parse(newTask);
             // get the task.
             let task = tasks.find((task) => task.id === parseInt(id));
             // if no task, return an error
@@ -46,7 +47,8 @@ class TaskController {
                 reject(`No task with id ${id} found`);
             }
             //else, update it by setting completed to true
-            tasks.replace(task, new_task );
+            const taskIndex = tasks.findIndex(task => task.id === parseInt(id));
+            tasks.splice(taskIndex, 1,newTask);
             // return the updated task
             resolve(task);
         });
@@ -62,7 +64,8 @@ class TaskController {
                 reject(`No task with id ${id} found`);
             }
             // else, update data and return a success message
-            tasks = tasks.filter((task) => task.id != parseInt(id));
+            const taskIndex = tasks.findIndex((task) => task.id === parseInt(id));
+            tasks.splice(taskIndex, 1);
             resolve(`task deleted successfully`);
         });
     }

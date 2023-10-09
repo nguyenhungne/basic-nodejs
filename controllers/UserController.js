@@ -37,8 +37,9 @@ class UserController {
     }
 
     // updating a user
-    async updateUser(id,new_user) {
+    async updateUser(id,newUser) {
         return new Promise((resolve, reject) => {
+            newUser = JSON.parse(newUser);
             // get the user.
             let user = users.find((user) => user.id === parseInt(id));
             // if no user, return an error
@@ -46,9 +47,10 @@ class UserController {
                 reject(`No user with id ${id} found`);
             }
             //else, update it by setting completed to true
-            users.replace(user, new_user );
+            const userIndex = users.findIndex(user => user.id == parseInt(id) )
+            users.splice(userIndex,1,newUser)
             // return the updated user
-            resolve(user);
+            resolve(newUser);
         });
     }
 
@@ -63,8 +65,8 @@ class UserController {
             }
             // else, return a success message
             
-            users = users.filter((user) => user.id != parseInt(id));
-
+            const userIndex = users.findIndex(user=> user.id === parseInt(id));
+            users.splice(userIndex, 1);
             resolve(`user deleted successfully`);
         });
     }

@@ -37,8 +37,9 @@ class ProjectController {
     }
 
     // updating a project
-    async updateProject(id,new_project) {
+    async updateProject(id,newProject) {
         return new Promise((resolve, reject) => {
+            newProject = JSON.parse(newProject);
             // get the project.
             let project = projects.find((project) => project.id === parseInt(id));
             // if no project, return an error
@@ -46,9 +47,10 @@ class ProjectController {
                 reject(`No project with id ${id} found`);
             }
             //else, update it by setting completed to true
-            projects.replace(project, new_task );
+            const projectIndex = projects.findIndex(project => project.id === parseInt(id));
+            projects.splice(projectIndex,1,newProject)
             // return the updated project
-            resolve(project);
+            resolve(newProject);
         });
     }
 
@@ -63,7 +65,8 @@ class ProjectController {
             }
             // else, return a success message
         
-            projects = projects.filter((task) => task.id != parseInt(id));
+            const projectIndex = projects.findIndex((project) => project.id === parseInt(id));
+            projects.splice(projectIndex, 1);
 
             resolve(`project deleted successfully`); 
         });
