@@ -1,4 +1,20 @@
-const projects = require("../data/projects");
+const projectsPath = require("../data/projects");
+const fs = require('fs');
+
+let rawProject = fs.readFileSync(projectsPath);
+let projects = JSON.parse(rawProject);
+
+function saveData(data,path) {
+    data = JSON.stringify(data);
+    fs.writeFile(path, data, 'utf8', function (err) {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        }
+    
+        console.log("JSON file has been saved.");
+    });
+}
 
 class ProjectController {
     // getting all projects
@@ -30,7 +46,8 @@ class ProjectController {
             };
 
             projects.push(newProject);
-
+            //save data to database
+            saveData(projects,projectsPath);
             // return the new created project
             resolve(newProject);
         });
@@ -49,6 +66,8 @@ class ProjectController {
             //else, update it by setting completed to true
             const projectIndex = projects.findIndex(project => project.id === parseInt(id));
             projects.splice(projectIndex,1,newProject)
+            //save data to database
+            saveData(projects,projectsPath);
             // return the updated project
             resolve(newProject);
         });
@@ -67,7 +86,8 @@ class ProjectController {
         
             const projectIndex = projects.findIndex((project) => project.id === parseInt(id));
             projects.splice(projectIndex, 1);
-
+            //save data to database
+            saveData(projects,projectsPath);
             resolve(`project deleted successfully`); 
         });
     }

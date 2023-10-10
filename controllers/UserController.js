@@ -1,4 +1,21 @@
-const users = require("../data/users");
+const usersPath = require("../data/users");
+
+const fs = require('fs');
+
+let rawUsers = fs.readFileSync(usersPath);
+let users = JSON.parse(rawUsers);
+
+function saveData(data,path) {
+    data = JSON.stringify(data);
+    fs.writeFile(path, data, 'utf8', function (err) {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        }
+    
+        console.log("JSON file has been saved.");
+    });
+}
 
 class UserController {
     // getting all users
@@ -29,7 +46,9 @@ class UserController {
                 ...user,
             };
 
-            tasks.push(newUser);
+            users.push(newUser);
+            //save data to database
+            saveData(users,usersPath);
 
             // return the new created user
             resolve(newUser);
@@ -49,6 +68,8 @@ class UserController {
             //else, update it by setting completed to true
             const userIndex = users.findIndex(user => user.id == parseInt(id) )
             users.splice(userIndex,1,newUser)
+            //save data to database
+            saveData(users,usersPath);
             // return the updated user
             resolve(newUser);
         });
@@ -67,6 +88,8 @@ class UserController {
             
             const userIndex = users.findIndex(user=> user.id === parseInt(id));
             users.splice(userIndex, 1);
+            //save data to database
+            saveData(users,usersPath);
             resolve(`user deleted successfully`);
         });
     }

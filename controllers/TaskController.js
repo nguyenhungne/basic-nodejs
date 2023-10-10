@@ -1,6 +1,31 @@
-const tasks = require("../data/tasks");
+const tasksPath = require("../data/tasks");
+
+const fs = require('fs');
+
+let rawTasks = fs.readFileSync(tasksPath);
+let tasks = JSON.parse(rawTasks);
+
+function saveData(data,path) {
+    data = JSON.stringify(data);
+    fs.writeFile(path, data, 'utf8', function (err) {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        }
+    
+        console.log("JSON file has been saved.");
+    });
+}
+
+
+
+
+
+
+
 
 class TaskController {
+
     // getting all tasks
     async getTasks() {
         return new Promise((resolve, _) => resolve(tasks));
@@ -30,6 +55,8 @@ class TaskController {
             };
 
             tasks.push(newTask);
+            //save data to database
+            saveData(tasks,tasksPath);
 
             // return the new created task
             resolve(newTask);
@@ -49,6 +76,8 @@ class TaskController {
             //else, update it by setting completed to true
             const taskIndex = tasks.findIndex(task => task.id === parseInt(id));
             tasks.splice(taskIndex, 1,newTask);
+            //save data to database
+            saveData(tasks,tasksPath);
             // return the updated task
             resolve(task);
         });
@@ -66,6 +95,8 @@ class TaskController {
             // else, update data and return a success message
             const taskIndex = tasks.findIndex((task) => task.id === parseInt(id));
             tasks.splice(taskIndex, 1);
+            //save data to database
+            saveData(tasks,tasksPath);
             resolve(`task deleted successfully`);
         });
     }
