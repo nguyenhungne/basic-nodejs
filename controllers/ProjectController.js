@@ -77,7 +77,7 @@ class ProjectController {
     async deleteProject(id) {
         return new Promise((resolve, reject) => {
             // get the project
-            let project = projects.find((project) => project.id === parseInt(id));
+            let project = projects.find((project) => project.id == parseInt(id));
             // if no project, return an error
             if (!project) { 
                 reject(`No project with id ${id} found`);
