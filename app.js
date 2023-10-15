@@ -2,11 +2,17 @@ const http = require("http");
 const TaskController = require("./controllers/TaskController");
 const ProjectController = require("./controllers/ProjectController");
 const UserController = require("./controllers/UserController");
+const projectUsersController = require("./controllers/projectUsersController");
 const { getReqData } = require("./util");
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 const server = http.createServer(async (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
+    res.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS, PUT, DELETE")
+    res.setHeader("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
 
 
     // TASKS----------------------------------------------------------------
@@ -188,20 +194,21 @@ else if (req.url === "/users" && req.method === "GET") {
     // send the data
     res.end(JSON.stringify(users));
 }
-    //[GET] /users/:id
-else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "GET") {
+    //[GET] /users/:username
+else if (req.url.match(/\/users\/([a-z]+)/) && req.method === "GET") {
     try {
-        // get id from url
-        const id = req.url.split("/")[2];
+        // get the data sent along
+        let user_data = await getReqData(req);
         // get users
-        const user = await new UserController().getUser(id);
+        const user = await new UserController().getUser(JSON.parse(user_data));
         // set the status code and content-type
         res.writeHead(200, { "Content-Type": "application/json" });
         // send the data
         res.end(JSON.stringify(user));
-    } catch (error) {
+    } 
+    catch (error) {
         // set the status code and content-type
-        res.writeHead(404, { "Content-Type": "application/json" });
+        res.writeHead(401, { "Content-Type": "application/json" });
         // send the error
         res.end(JSON.stringify({ message: error }));
     }
@@ -250,15 +257,107 @@ else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "PATCH") {
 
 // /api/users/ : POST
 else if (req.url === "/users" && req.method === "POST") {
+    try {
+        // get the data sent along
+        let user_data = await getReqData(req);
+        // create the user
+        let user = await new UserController().createUser(JSON.parse(user_data));
+        // set the status code and content-type
+        res.writeHead(200, { "Content-Type": "application/json" });
+        //send the project
+        res.end(JSON.stringify(user));
+    } catch (error) {
+        // set the status code and content-type
+        res.writeHead(404, { "Content-Type": "application/json" });
+        // send the error
+        res.end(JSON.stringify({ message: error }));
+    }
+}
+
+// projectUsers route
+
+else if (req.url === "/projectUsers" && req.method === "GET") {
+    // get the projectUsers.
+    const projectUsers = await new projectUsersController().getProjectUsers();
+    // set the status code, and content-type
+    res.writeHead(200, { "Content-Type": "application/json" });
+    // send the data
+    res.end(JSON.stringify(projectUsers));
+}
+    //[GET] /projectUsers/:id
+else if (req.url.match(/\/projectUsers\/([0-9]+)/) && req.method === "GET") {
+    try {
+        // get id from url
+        const id = req.url.split("/")[2];
+        // get project user
+        const projectUser = await new projectUsersController().getProjectUser(id);
+        // set the status code and content-type
+        res.writeHead(200, { "Content-Type": "application/json" });
+        // send the data
+        res.end(JSON.stringify(projectUser));
+    } catch (error) {
+        // set the status code and content-type
+        res.writeHead(404, { "Content-Type": "application/json" });
+        // send the error
+        res.end(JSON.stringify({ message: error }));
+    }
+}
+
+    //[DELETE] /projectUsers/:id
+
+else if (req.url.match(/\/projectUsers\/([0-9]+)/) && req.method === "DELETE") {
+    try {
+        // get the id from url
+        const id = req.url.split("/")[2];
+        // delete projectUser
+        let message = await new projectUsersController().deleteProjectUser(id);
+        // set the status code and content-type
+        res.writeHead(200, { "Content-Type": "application/json" });
+        // send the message
+        res.end(JSON.stringify({ message }));
+    } catch (error) {
+        // set the status code and content-type
+        res.writeHead(404, { "Content-Type": "application/json" });
+        // send the error
+        res.end(JSON.stringify({ message: error }));
+    }
+}
+
+// /projectUsers/:id : UPDATE
+else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "PATCH") {
+    try {
+        // get the id from the url
+        const id = req.url.split("/")[2];
+        // get new projectUsers
+        let newProjectUser = await getReqData(req);
+        // update projectUsers
+        let updatedProjectUser = await new projectUsersController().updateProjectUser(id,newProjectUser);
+        // set the status code and content-type
+        res.writeHead(200, { "Content-Type": "application/json" });
+        // send the message
+        res.end(JSON.stringify(updatedProjectUser));
+    } catch (error) {
+        // set the status code and content type
+        res.writeHead(404, { "Content-Type": "application/json" });
+        // send the error
+        res.end(JSON.stringify({ message: error }));
+    }
+}
+
+// /projectUsers/ : POST
+else if (req.url === "/projectUsers" && req.method === "POST") {
     // get the data sent along
-    let user_data = await getReqData(req);
+    let projectUsersData = await getReqData(req);
     // create the user
-    let user = await new UserController().createUser(JSON.parse(user_data));
+    let projectUSer = await new projectUsersController().createProjectUser(JSON.parse(projectUsersData));
     // set the status code and content-type
     res.writeHead(200, { "Content-Type": "application/json" });
     //send the project
-    res.end(JSON.stringify(user));
+    res.end(JSON.stringify(projectUSer));
 }
+
+
+
 
 // No route present
 else {

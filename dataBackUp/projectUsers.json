@@ -1,0 +1,18 @@
+[
+    {
+        "projectId":323410404735,
+        "accountId" : 1,
+        "role": "admin"
+    },
+    {
+        "projectId":323410404735,
+        "accountId" : 3,
+        "role": "admin"
+    }
+    ,
+    {
+        "projectId": 323410404736,
+        "accountId":1,  
+        "role": "user"
+    }
+]

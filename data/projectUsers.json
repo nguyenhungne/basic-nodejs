@@ -1,0 +1,14 @@
+[
+    {
+        "id":1,
+        "projectId":1,
+        "accountId" : 1,
+        "role": "admin"
+    },
+    {
+        "id":2,
+        "projectId": 2,
+        "accountId":2,  
+        "role": "user"
+    }
+]

@@ -19,11 +19,6 @@ function saveData(data,path) {
 
 
 
-
-
-
-
-
 class TaskController {
 
     // getting all tasks
