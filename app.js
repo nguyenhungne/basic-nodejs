@@ -3,7 +3,7 @@ const TaskController = require("./controllers/TaskController");
 const ProjectController = require("./controllers/ProjectController");
 const UserController = require("./controllers/UserController");
 const projectUsersController = require("./controllers/projectUsersController");
-const { getReqData } = require("./util");
+const middlewares = require("./middlewares");
 
 const PORT = process.env.PORT || 8000;
 
@@ -71,7 +71,7 @@ else if (req.url.match(/\/tasks\/([0-9]+)/) && req.method === "PATCH") {
         // get the id from the url
         const id = req.url.split("/")[2];
         //get new task
-        let new_task = await getReqData(req);
+        let new_task = await middlewares.getReqData(req);
         // update task
         let updated_task = await new TaskController().updateTask(id,new_task);
         // set the status code and content-type
@@ -89,7 +89,7 @@ else if (req.url.match(/\/tasks\/([0-9]+)/) && req.method === "PATCH") {
 // /tasks/ : POST
 else if (req.url === "/tasks" && req.method === "POST") {
     // get the data sent along
-    let task_data = await getReqData(req);
+    let task_data = await middlewares.getReqData(req);
     // create the task
     let task = await new TaskController().createTask(JSON.parse(task_data));
     // set the status code and content-type
@@ -155,7 +155,7 @@ else if (req.url.match(/\/projects\/([0-9]+)/) && req.method === "PATCH") {
         // get the id from the url
         const id = req.url.split("/")[2];
         // get new project
-        let new_project = await getReqData(req);
+        let new_project = await middlewares.getReqData(req);
         // update project
         let updated_project = await new ProjectController().updateProject(id,new_project);
         // set the status code and content-type
@@ -170,10 +170,10 @@ else if (req.url.match(/\/projects\/([0-9]+)/) && req.method === "PATCH") {
     }
 }
 
-// /api/projects/ : POST
+// projects/ : POST
 else if (req.url === "/projects" && req.method === "POST") {
     // get the data sent along
-    let project_data = await getReqData(req);
+    let project_data = await middlewares.getReqData(req);
     // create the project
     let project = await new ProjectController().createProject(JSON.parse(project_data));
     // set the status code and content-type
@@ -182,7 +182,6 @@ else if (req.url === "/projects" && req.method === "POST") {
     res.end(JSON.stringify(project));
 }
 
-//----------------------------------------------------------------
 
 // users routes
 
@@ -194,11 +193,11 @@ else if (req.url === "/users" && req.method === "GET") {
     // send the data
     res.end(JSON.stringify(users));
 }
-    //[GET] /users/:username
-else if (req.url.match(/\/users\/([a-z]+)/) && req.method === "GET") {
+    //[GET] /users/:username or /:842348324
+else if ((req.url.match(/\/users\/([a-z]+)/)) && req.method === "GET") {
     try {
         // get the data sent along
-        let user_data = await getReqData(req);
+        let user_data = await middlewares.getReqData(req);
         // get users
         const user = await new UserController().getUser(JSON.parse(user_data));
         // set the status code and content-type
@@ -217,7 +216,7 @@ else if (req.url.match(/\/users\/([a-z]+)/) && req.method === "GET") {
     //[DELETE] /users/:id
 
 else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "DELETE") {
-    try {
+    // try {
         // get the id from url
         const id = req.url.split("/")[2];
         // delete user
@@ -226,12 +225,12 @@ else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "DELETE") {
         res.writeHead(200, { "Content-Type": "application/json" });
         // send the message
         res.end(JSON.stringify({ message }));
-    } catch (error) {
-        // set the status code and content-type
-        res.writeHead(404, { "Content-Type": "application/json" });
-        // send the error
-        res.end(JSON.stringify({ message: error }));
-    }
+    // } catch (error) {
+    //     // set the status code and content-type
+    //     res.writeHead(404, { "Content-Type": "application/json" });
+    //     // send the error
+    //     res.end(JSON.stringify({ message: error }));
+    // }
 }
 
 // /users/:id : UPDATE
@@ -240,7 +239,7 @@ else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "PATCH") {
         // get the id from the url
         const id = req.url.split("/")[2];
         // get new user
-        let new_user = await getReqData(req);
+        let new_user = await middlewares.getReqData(req);
         // update project
         let updated_user = await new UserController().updateUser(id,new_user);
         // set the status code and content-type
@@ -259,7 +258,7 @@ else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "PATCH") {
 else if (req.url === "/users" && req.method === "POST") {
     try {
         // get the data sent along
-        let user_data = await getReqData(req);
+        let user_data = await middlewares.getReqData(req);
         // create the user
         let user = await new UserController().createUser(JSON.parse(user_data));
         // set the status code and content-type
@@ -324,12 +323,12 @@ else if (req.url.match(/\/projectUsers\/([0-9]+)/) && req.method === "DELETE") {
 }
 
 // /projectUsers/:id : UPDATE
-else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "PATCH") {
+else if (req.url.match(/\/projectUsers\/([0-9]+)/) && req.method === "PATCH") {
     try {
         // get the id from the url
         const id = req.url.split("/")[2];
         // get new projectUsers
-        let newProjectUser = await getReqData(req);
+        let newProjectUser = await middlewares.getReqData(req);
         // update projectUsers
         let updatedProjectUser = await new projectUsersController().updateProjectUser(id,newProjectUser);
         // set the status code and content-type
@@ -347,7 +346,7 @@ else if (req.url.match(/\/users\/([0-9]+)/) && req.method === "PATCH") {
 // /projectUsers/ : POST
 else if (req.url === "/projectUsers" && req.method === "POST") {
     // get the data sent along
-    let projectUsersData = await getReqData(req);
+    let projectUsersData = await middlewares.getReqData(req);
     // create the user
     let projectUSer = await new projectUsersController().createProjectUser(JSON.parse(projectUsersData));
     // set the status code and content-type
