@@ -5,8 +5,8 @@ const { findTasks, createTask, findTask, updateTask, deleteTask } = require("./h
 class TaskController {
 
     // getting all tasks
-    getTasks() {
-        return findTasks();
+    getTasks(req,res) {
+        return findTasks(req,res);
     }
 
     // getting a single task

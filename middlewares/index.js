@@ -1,5 +1,7 @@
-getReqData = require("./getReqData")
+const authentication = require("./authentication")
+const getReqData = require("./getReqData")
+ 
 
 
 
-module.exports = {getReqData}
+module.exports = {getReqData, authentication}

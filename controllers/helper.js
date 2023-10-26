@@ -1,5 +1,8 @@
 const bcrypt = require("bcrypt");
+require('dotenv').config();
 const saltRounds = 10;
+const jwt = require("jsonwebtoken");
+const authenticate = require("../middlewares/authentication");
 const {
   userRepository,
   taskRepository,
@@ -98,12 +101,19 @@ function verifyUser(userBody) {
         ))
         .then(user => {
             if (user) {
-                return user
+
+              const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+              const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+              
+
+              return { user, token, refreshToken };
             } else {
                 throw new Error('Username or password is incorrect.')
             }
         })
         .catch(err => {
+          console.log(err)
             handleError(err, 'controllers/helpers.js', 'verifyUser')
             return null
         })
@@ -136,8 +146,6 @@ function updateProjectUser(id,projectUser) {
 function deleteProjectUser(id) {
   return projectUserRepository.deleteOne(id);
 }
-
-
 
 
 module.exports = { findTasks, createTask, findTask, updateTask, deleteTask, findProjects, findProject, createProject, updateProject, deleteProject, createUser,  findUsers, updateUser, deleteUser, verifyUser, findProjectUsers, createProjectUser, findProjectUser, updateProjectUser, deleteProjectUser }

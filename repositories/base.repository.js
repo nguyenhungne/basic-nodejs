@@ -11,7 +11,7 @@ function Repository(name, schema) {
         return data;
       })
       .catch((err) => {
-        handleError(err, "repositories/base.repository.js", "findAll");
+        console.log(err);
         return [];
       });
   };
@@ -27,11 +27,11 @@ function Repository(name, schema) {
           return task;
         } else {
           // return an error
-          reject(`task with id ${id} not found `);
+          throw new Error(`No id ${id} found`);
         }
       })
       .catch((err) => {
-        handleError(err, "repositories/base.repository.js", "find");
+        console.log(err);
         return [];
       });
   };
