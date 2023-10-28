@@ -1,12 +1,12 @@
-const userModel = require('./user')
-const taskModel = require('./task')
-const projectUserModel = require('./projectUser')
-const projectModel = require('./project')
+const UserModel = require('./user')
+const TaskModel = require('./task')
+const ProjectUserModel = require('./projectUser')
+const ProjectModel = require('./project')
 
 
 module.exports = {
-    userModel,
-    taskModel,
-    projectUserModel,
-    projectModel        
+    UserModel,
+    TaskModel,
+    ProjectUserModel,
+    ProjectModel        
 }

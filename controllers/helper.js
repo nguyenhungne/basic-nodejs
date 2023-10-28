@@ -1,151 +1,255 @@
 const bcrypt = require("bcrypt");
-require('dotenv').config();
+require("dotenv").config();
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
-const authenticate = require("../middlewares/authentication");
+const mongoose = require("mongoose");
+
 const {
-  userRepository,
-  taskRepository,
-  projectRepository,
-  projectUserRepository,
-} = require("../repositories");
+  UserModel,
+  TaskModel,
+  ProjectUserModel,
+  ProjectModel,
+} = require("../models");
+
+// const {
+//   userRepository,
+//   taskRepository,
+//   projectRepository,
+//   projectUserRepository,
+// } = require("../repositories");
 
 // tasks
-
 function findTasks() {
-  return taskRepository.findAll();
+  return TaskModel.find({});
 }
 
-function createTask(task) {
-  const newTask = {
-    id: Math.floor(Date.now() + Math.random() * 10),
+async function createTask(task) {
+  const newTask = new TaskModel({
     ...task,
     done: false,
-  };
-
-  return taskRepository.createOne(newTask);
+  });
+  try {
+    const savedTask = await newTask.save();
+    console.log("Task saved:", savedTask);
+    return savedTask;
+  } catch (err) {
+    err.code === 11000
+      ? console.error("Error saving task: Duplicate task field")
+      : console.error("Error saving task:", err);
+  }
 }
 
 function findTask(id) {
-  return taskRepository.findById(id);
+  return TaskModel.findById(id);
 }
 
-function updateTask(id,task) {
-  return taskRepository.updateOne(id,task);
+async function updateTask(id, task) {
+  task = JSON.parse(task);
+  try {
+    await TaskModel.updateOne({ _id: id }, { ...task });
+    return TaskModel.findById(id);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-function deleteTask(id) {
-  return taskRepository.deleteOne(id);
+async function deleteTask(id) {
+  try {
+    await TaskModel.deleteOne({ _id: id });
+    return "Task deleted";
+  } catch (error) {
+    console.error("Error deleting task:");
+    return "Task not found";
+  }
 }
 
 //project
 function findProjects() {
-  return projectRepository.findAll();
+  return ProjectModel.find({});
 }
 
 function findProject(id) {
-  return projectRepository.findById(id);
+  return ProjectModel.findById(id);
 }
 
-function createProject(project) {
-  const newProject = {
+async function createProject(project) {
+  const newProject = new ProjectModel({
     ...project,
     done: false,
-  };
-  return projectRepository.createOne(newProject);
+  });
+  try {
+    const savedProject = await newProject.save();
+    console.log("project saved:", savedProject);
+    return savedProject;
+  } catch (err) {
+    console.error("Error saving project:", err);
+  }
 }
 
-function updateProject(id,newProject) {
-  return projectRepository.updateOne(id,newProject);
+async function updateProject(id, newProject) {
+  newProject = JSON.parse(newProject);
+  try {
+    await ProjectModel.updateOne({ _id: id }, { ...newProject });
+    return ProjectModel.findById(id);
+  } catch (error) {
+    console.log("Error updating project:");
+    return "project not found";
+  }
 }
 
 function deleteProject(id) {
-    return projectRepository.deleteOne(id);
+  try {
+    ProjectModel.deleteOne({ _id: id });
+    return "Project deleted";
+  } catch (error) {
+    console.error("Error deleting project:");
+    return "project not found";
+  }
 }
 
-
-// users
-function createUser(user) {
+// // users
+async function createUser(user) {
   const hashPassword = bcrypt.hashSync(
     JSON.stringify(user.password),
     saltRounds
   );
   // create a user, with random id, hash password and data sent
-  let newUser = {
-    id: Math.floor(Date.now() + Math.random() * 10),
+  let newUser = new UserModel({
     ...user,
     password: hashPassword,
-  };
+  });
 
-  return userRepository.createOne(newUser);
+  try {
+    const savedUser = await newUser.save();
+    console.log("Task saved:", savedUser);
+    return "User saved";
+  } catch (err) {
+    console.error(err);
+    return "Error saving user";
+  }
 }
-
 
 function findUsers() {
-  return userRepository.findAll();
+  return UserModel.find({});
 }
 
-function updateUser(id,newUser) {
-  return userRepository.updateOne(id,newUser);
+async function updateUser(id, newUser) {
+  newUser = JSON.parse(newUser);
+  try {
+    await UserModel.updateOne({ _id: id }, { ...newUser });
+    return UserModel.findById(id);
+  } catch (error) {
+    console.log("Error updating user:");
+    return "User not found";
+  }
 }
 
-function deleteUser(id) {
-  return userRepository.deleteOne(id);
+async function deleteUser(id) {
+  try {
+    await UserModel.deleteOne({ _id: id });
+    return "User deleted";
+  } catch (error) {
+    console.error("Error deleting User:");
+    return "User not found";
+  }
 }
 
 function verifyUser(userBody) {
-    return userRepository.findAll()
-        .then(users => (users || []).find(user =>
-            user.username === userBody.username &&
-            bcrypt.compareSync(JSON.stringify(userBody.password), user.password)
-        ))
-        .then(user => {
-            if (user) {
+  return UserModel.find({})
+    .then((users) => {
+      const user = (users || []).find(
+        (user) =>
+          user.username === userBody.username &&
+          bcrypt.compareSync(JSON.stringify(userBody.password), user.password)
+       )
+       return user
+    }
+    
+  )
+  .then((user) => {
+    if (user) {
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+      const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
 
-              const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-              const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-              
-
-              return { user, token, refreshToken };
-            } else {
-                throw new Error('Username or password is incorrect.')
-            }
-        })
-        .catch(err => {
-          console.log(err)
-            handleError(err, 'controllers/helpers.js', 'verifyUser')
-            return null
-        })
-
-
+      return { user, token, refreshToken };
+    } else {
+      return "Username or password is incorrect."
+    }
+  }
+  )
+  .catch((err) => {
+        console.log(err);
+        handleError(err, "controllers/helpers.js", "verifyUser");
+        return null;
+      });
 }
 
 //projectUsers
 function findProjectUsers() {
-  return projectUserRepository.findAll();
+  return ProjectModel.find({});
 }
 
-function createProjectUser(projectUser) {
-  const newProjectUser = {
-    id: Math.floor(Date.now() + Math.random() * 10),
+async function createProjectUser(projectUser) {
+  const newProjectUser = new ProjectModel({
     ...projectUser,
-  };
-
-  return projectUserRepository.createOne(newProjectUser);
+  });
+  try {
+    const savedProjectUser = await newProjectUser.save();
+    console.log("project user saved:", savedProjectUser);
+    return savedProjectUser;
+  } catch (err) {
+    console.error("Error saving project user:", err);
+  }
 }
 
 function findProjectUser(id) {
-  return projectUserRepository.findById(id);
+  return ProjectModel.findById(id);
 }
 
-function updateProjectUser(id,projectUser) {
-  return projectUserRepository.updateOne(id,projectUser);
+async function updateProjectUser(id, newProjectUser) {
+  newProjectUser = JSON.parse(newProjectUser);
+  try {
+    await ProjectUserModel.updateOne({ _id: id }, { ...newProjectUser });
+    return ProjectUserModel.findById(id);
+  } catch (error) {
+    console.log("Error updating project user:");
+    return "project user not found";
+  }
 }
 
-function deleteProjectUser(id) {
-  return projectUserRepository.deleteOne(id);
+async function deleteProjectUser(id) {
+  try {
+    await ProjectModel.deleteOne({ _id: id });
+    return "Project user deleted";
+  } catch (error) {
+    console.error("Error deleting project user:");
+    return "project user not found";
+  }
 }
 
-
-module.exports = { findTasks, createTask, findTask, updateTask, deleteTask, findProjects, findProject, createProject, updateProject, deleteProject, createUser,  findUsers, updateUser, deleteUser, verifyUser, findProjectUsers, createProjectUser, findProjectUser, updateProjectUser, deleteProjectUser }
+module.exports = {
+  findTasks,
+  createTask,
+  findTask,
+  updateTask,
+  deleteTask,
+  findProjects,
+  findProject,
+  createProject,
+  updateProject,
+  deleteProject,
+  createUser,
+  findUsers,
+  updateUser,
+  deleteUser,
+  verifyUser,
+  findProjectUsers,
+  createProjectUser,
+  findProjectUser,
+  updateProjectUser,
+  deleteProjectUser,
+};

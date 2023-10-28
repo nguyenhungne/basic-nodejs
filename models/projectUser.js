@@ -1,17 +1,16 @@
-const projectUser = {
-    accountId: {
-      type: "number",
-      required: true,
-      unique: true
-    },
-    projectId: {
-      type: "number",
-    },
-    role: {
-        type : "string",
-        required: true
-    }
-  };
-  
-  module.exports = projectUser;
-  
+const mongoose = require('mongoose');
+
+const projectUserSchema = new mongoose.Schema({
+  projectId: {
+    type: Number,
+    required: true,
+  },
+  role: {
+    type: String,
+    required: true,
+  },
+});
+
+const ProjectUserModel = mongoose.model('ProjectUser', projectUserSchema);
+
+module.exports = ProjectUserModel;

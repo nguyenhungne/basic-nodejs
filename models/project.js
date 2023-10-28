@@ -1,18 +1,17 @@
-const project = {
-    id: {
-      type: "number",
-      required: true,
-    },
-    project: {
-      type: "string",
-      required: true,
-      unique: true,
-    },
-    done: {
-      type: "boolean",
-      required: false,
-    },
-  };
-  
-  module.exports = project;
-  
+const mongoose = require('mongoose');
+
+const projectSchema = new mongoose.Schema({
+  project: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  done: {
+    type: Boolean,
+    required: false,
+  },
+});
+
+const ProjectModel = mongoose.model('Project', projectSchema);
+
+module.exports = ProjectModel;

@@ -1,1 +1,4 @@
-[{"id":2,"projectId":10000,"accountId":2,"role":"user"},{"projectId":1654654444,"accountId":16543445654,"role":"admin"}]
+[
+  { "id": 2, "projectId": 10000, "accountId": 2, "role": "user" },
+  { "projectId": 1654654444, "accountId": 16543445654, "role": "admin" }
+]
